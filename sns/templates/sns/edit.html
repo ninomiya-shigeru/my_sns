@@ -1,0 +1,24 @@
+{% extends 'sns/layout.html' %}
+{% block title %}Comment{% endblock %}
+
+{% block header %}
+<h1 class="display-4 text-primary">Post</h1>
+    <div class="my-3">
+        <span class="">"{{message.owner}}"</span>
+        {% if message.group.title == 'public' %}
+        <span class="bg-info text-light px-1">Public</span>
+        {% else %}
+        <span class="bg-info text-light px-1">{{message.group}}</span>
+        {% endif %}
+        <span class=""> ({{message.pub_date}})</span>
+    </div>
+    <br>
+{% endblock %}
+
+{% block content %}
+<form action="{% url 'edit' num=message.id %}" method="POST">
+{% csrf_token %}
+{{form.as_p}}
+<button class="btn btn-primary">edit!</button>
+</form>
+{% endblock %}

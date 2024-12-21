@@ -1,0 +1,41 @@
+{% extends 'sns/layout.html' %}
+
+{% block title %}Post{% endblock %}
+
+{% block header %}
+<h1 class="display-4 text-primary">Post</h1>
+<div class="my=3">
+<span class="bg-info text-light px-1">Hint!</span>
+<p>●投稿先のグループを選択し、メッセージを投稿します。<br>
+●30MB以上の動画はリサイズしてからアップロードします。</P>
+{% if messages %}
+<ul class="messages text-primary">
+    {% for message in messages %}
+    <li {% if message.tags %} class="list-group-item {{ message.tags }}"
+        {% endif %}>{{ message }}</li>
+    {% endfor %}
+</ul>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<form action="{% url 'post' %}" method="post" enctype="multipart/form-data">
+{% csrf_token %}
+{{form.as_p}}
+<button class="btn btn-primary">Post!</button>
+</form>
+
+<script>
+        document.getElementById('PostForm').addEventListener('submit', function(event) {
+            var videoInput = document.getElementById('video_file');
+            var file = video_file.files[0];
+            var maxSize = 30 * 1024 * 1024; // 100MB
+
+            if (file.size > maxSize) {
+                alert('The file size exceeds the maximum limit of 100MB.');
+                event.preventDefault(); // アップロードを中止
+            }
+        });
+    </script>
+
+{% endblock %}

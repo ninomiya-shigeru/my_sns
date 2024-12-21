@@ -1,0 +1,58 @@
+{% extends 'sns/layout.html' %}
+{% block title %}Comment{% endblock %}
+
+{% block header %}
+<br>
+
+    <div class="my-3">
+        <span class="">"{{message.owner}}"</span>
+        {% if message.group.title == 'public' %}
+        <span class="bg-info text-light px-1">Public</span>
+        {% else %}
+        <span class="bg-info text-light px-1">{{message.group}}</span>
+        {% endif %}
+        <span class=""> ({{message.pub_date}})</span>
+    </div>
+    <p>  {{ message|linebreaksbr }}  </p>
+</div>
+<br>
+{% endblock %}
+
+<!-- コメント　start -->
+{% block content %}
+<div class="card">
+    <div class="card-body">
+        {% if comments %}
+            <small class="card-title">comments</small>
+
+            {% for item in comments %}
+                <hr/>
+                <p class="card-text">{{ item.text|linebreaksbr }}</p>
+                <small class="text-muted">by {{ item.commented_by.username }} さん {{ item.commented_at|date:"DATETIME_FORMAT" }}</small>
+            {% endfor %}
+        {% else %}
+            <small>コメントはありません。</small>
+        {% endif %}
+    </div>
+</div>
+<!-- コメント end -->
+<br>
+<p>※新しいCommentの登録</p>
+<form action="{% url 'comment' %}?msg_id={{ message.id }}" method="post">
+    {% csrf_token %}
+    <label for="cmt">comment: </label>
+    <textarea id="cmt" type="text" name="cmt" class="form-control" rows="3"></textarea>
+    <button class="btn btn-primary mt-1">post comment</button>
+</form>
+<p class="border border-dark">border border-</p>
+<span class="border border-primary">border border-primary</span>
+<p class="btn btn-primary mt-1">btn btn-primary mt-1</p>
+<p class="text-muted">text-muted<dark/p>
+<p class="bg-info text-light px-1">bg-info text-light px-1</p>
+<p class="py-0">py-0</p>
+{% endblock %}
+
+<div class="form-group">
+  <label for="exampleFormControlTextarea1">テキストエリアの例</label>
+  <textarea class="form-control" id="exampleFormControlTextarea1" rows="3"></textarea>
+</div>

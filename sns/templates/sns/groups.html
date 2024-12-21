@@ -1,0 +1,66 @@
+{% extends 'sns/layout.html' %}
+
+{% block title %}Groups{% endblock %}
+
+{% block header %}
+<h1 class="display-4 text-primary">Group</h1>
+<p class="caption">※グループを選択して加入申請で加入申請リストに登録されます。</p>
+{% if messages %}
+<ul class="messages text-primary">
+    {% for message in messages %}
+    <li {% if message.tags %}
+        class="{{ message.tags }}"
+        {% endif %}>{{ message }}</li>
+    {% endfor %}
+</ul>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+    <table class="table">
+    <tr>
+        <th class="scope">オーナー</th>
+        <th class="scope">グループ</th>
+        <th class="scope">加入申請</th>
+    </tr>
+    {% for item in groups_form %}
+    <tr>
+        <td class="scope">{{item.owner}}</td>
+        <td class="scope">{{item.title}}</td>
+        <td class="scope"><a href="{% url 'add' %}?owner={{ item.owner }}&group={{ item.title }}">加入申請</a></td>　
+    </tr>
+    {% endfor %}
+    </table>
+
+<p class="caption">※グループのオーナーが承認するとグループに加入できます。</p>
+    <table class="table">
+    <tr>
+        <th class="scope">メンバー</th>
+        <th class="scope">グループ</th>
+        <th class="scope">加入申請日</th>
+        <th class="scope">加入承認日</th>
+        <th class="scope">加入承認</th>
+        <th class="scope">加入却下</th>
+    </tr>
+    {% for item in friends_form %}
+    <tr>
+        {% if item.hope_date == item.join_date %}
+        <td class="scope">{{item.user}}</td>
+        <td class="scope">{{item.group}}</td>
+        <td class="scope">{{item.hope_date}}</td>
+        <td class="scope">{{item.join_date}}</td>
+        <td class="scope"><a href="{% url 'join' %}?member={{ item.user }}&group={{ item.group }}">申請承認</a></td>　
+        <td zlass="scope"><a href="{% url 'rjct' %}?member={{ item.user }}&group={{ item.group }}">申請却下</a></td>
+        {% endif %}　
+    </tr>
+    {% endfor %}
+    </table>
+<br>
+
+<p>※グループの名前をいれてcreate new groupで新しいグループを作ります。</p>
+<form action="{% url 'creategroup' %}" method="post">
+{% csrf_token %}
+{{create_form}}
+<button class="btn btn-primary mt-1">create new group</button>
+</form>
+{% endblock %}

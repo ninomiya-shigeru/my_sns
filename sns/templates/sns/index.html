@@ -1,0 +1,183 @@
+{% extends 'sns/layout.html' %}
+
+{% block header %}
+<script>
+function sendGroupForm(page) {
+    var baseUrl = "http://13.230.165.156/index/";
+    document.group_form.action = baseUrl + page + "/";
+    document.group_form.submit();
+}
+</script>
+
+<script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // スクロール位置を読み込む際のオフセット（ピクセル）
+            const offset = 4200; // 例えばヘッダーの高さなど
+
+            if (sessionStorage.scrollPosition) {
+                window.scrollTo(0, sessionStorage.scrollPosition - offset);
+            }
+            window.addEventListener("beforeunload", function() {
+                sessionStorage.scrollPosition = window.scrollY;
+            });
+        });
+    </script>
+
+<div class="welcome">
+<h1 class="display-4 text-primary">Top</h1>
+<div class="my=3">
+    <span class="bg-info text-light px-1">Hint!</span>
+    <p>●postでグループに投稿します。groupでグループへの加入、新規作成ができます<br>
+    ●グループのチェックをONにしてupdateで、そのグループのメッセージだけが表示されます<br>
+    ●deleteでそのメッセージを削除、editで編集、add commentでコメントを投稿します</p>
+</div>
+{% if messages %}
+<ul class="messages text-primary">
+    {% for message in messages %}
+    <li {% if message.tags %}
+        class="{{ message.tags }}"
+        {% endif %}>{{ message }}</li>
+    {% endfor %}
+</ul>
+{% endif %}
+{% endblock %}
+</div>
+
+{% block content %}
+<hr>
+<div>
+    <form action="{% url 'index' %}" method="post" name="group_form">
+        {% csrf_token %}
+        {{check_form}}
+        <div>
+            <button class="btn btn-primary">update</button>
+        </div>
+    </form>
+</div>
+<table class="table mt-3">
+    <tr><th>Messages</th></tr>
+{% for item in contents %}
+    <tr><td>
+    <div class="my-3">
+        <span class="">"{{item.owner}}"</span>
+        {% if item.group.title == 'public' %}
+            <span class="bg-info text-light px-1">Public</span>
+        {% else %}
+            <span class="bg-info text-light px-1">{{item.group}}</span>
+        {% endif %}
+        <span class=""> ({{item.pub_date}})</span>
+    </div>
+        <p>{{item.content|linebreaksbr}}</p>
+        <p>AI_Comment</p>
+        <p>{{item.aianswer|linebreaksbr}}</p>
+  <!-- 画像表示 -->
+<style>
+.responsive-image {
+        width:75%; /* ピクセル単位で指定します */
+        height: auto; /* 縦横比を保持します */
+        object-fit: cover; /* 画像をコンテナ内に収めます */
+}
+</style>
+
+
+  {% if item.photo1 %}
+  <img src="{{ item.photo1.url }}" alt="upload Image" class="responsive-image"><br><br>
+  {% endif %}
+  {% if item.photo2 %}
+  <img src="{{ item.photo2.url }}" alt="upload Image" class="responsive-image"><br><br>
+  {% endif %}
+
+  <!--  ビデオ表示   -->
+  {% if item.video_file %}
+
+      <video width=77% height-auto controls>
+              <source src="{{ item.video_file.url }}" type="video/mp4">
+      </video>
+  {% endif %}
+
+
+  <!-- コメント　start -->
+<br>
+<div class="card">
+    <div class="card-body">
+        {% if comments %}
+            <small class="text-muted">Comments</small>
+            {% for cmt in comments %}
+                {% if cmt.commented_to.id == item.id %}
+                    <hr/>
+                    <p class="card-text">{{ cmt.text|linebreaksbr }}</p>
+                    <small class="text-muted">by {{ cmt.commented_by.username }} さん {{ cmt.commented_at|date:"DATETIME_FORMAT" }}</small>
+                {% endif %}
+            {% endfor %}
+        {% else %}
+            <small class="text-muted">コメントはありません</small>
+        {% endif %}
+    </div>
+  </div>
+
+<!-- コメント end -->
+
+    {% if item.share_id > 0 %}
+    <ul><li class="text-black-50">"{{item.get_share}}"</li></ul>
+    {% endif %}
+    <span class="float-left text-info">
+        share={{item.share_count}} good={{item.good_count}}
+    </span>
+    <span class="float-right">
+        <a href="{% url 'delete' item.id %}">delete  </a>
+        <a href="{% url 'edit' item.id %}">edit  </a>
+        <a href="{% url 'comment' %}?msg_id={{ item.id }}&owner={{ item.owner }}">
+            add comment</a>
+        <a href="{% url 'share' item.id %}">
+            <button class="py-0">share</button></a>
+        <a href="{% url 'good' item.id %}">
+            <button class="py-0">good!</button></a>
+    </span>
+</td></tr>
+{% endfor %}
+</table>
+
+<ul class="pagination justify-content-center">
+    {% if contents.has_previous %}
+    <li class="page-item">
+        <a class="page-link" href="javascript:sendGroupForm(1);">
+            &laquo; first</a>
+    </li>
+    <li class="page-item">
+        <a class="page-link"
+        href="javascript:sendGroupForm({{contents.previous_page_number}});">
+            &laquo; prev</a>
+    </li>
+    {% else %}
+    <li class="page-item">
+        <a class="page-link">&laquo; first</a>
+    </li>
+    <li class="page-item">
+        <a class="page-link">&laquo; prev</a>
+    </li>
+    {% endif %}
+    <li class="page-item">
+        <a class="page-link">
+        {{contents.number}}/{{contents.paginator.num_pages}}</a>
+    </li>
+    {% if contents.has_next %}
+    <li class="page-item">
+        <a class="page-link"
+        href="javascript:sendGroupForm({{contents.next_page_number }});">
+            next &raquo;</a>
+    </li>
+    <li class="page-item">
+        <a class="page-link"
+        href="javascript:sendGroupForm({{contents.paginator.num_pages}});">
+            last &raquo;</a>
+    </li>
+    {% else %}
+    <li class="page-item">
+        <a class="page-link">next &raquo;</a>
+    </li>
+    <li class="page-item">
+        <a class="page-link">last &raquo;</a>
+    </li>
+    {% endif %}
+</ul>
+{% endblock %}
